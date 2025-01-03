@@ -1,0 +1,582 @@
+  <div class="content-area" [ngClass]="{'ml-64': !isSidebarCollapsed, 'ml-16': isSidebarCollapsed}">
+  <div class="dashboard-content">
+    <!-- Filtres -->
+    <div class="flex gap-4 mb-6">
+      <p-dropdown 
+        [options]="[{label: 'Tous les établissements', value: 'all'}]" 
+        [(ngModel)]="selectedEtablissement"
+        placeholder="Tous les établissements"
+        styleClass="w-72">
+      </p-dropdown>
+  
+      <p-dropdown 
+        [options]="[{label: 'Toutes les communes', value: 'all'}]" 
+        [(ngModel)]="selectedCommune"
+        placeholder="Toutes les communes"
+        styleClass="w-72">
+      </p-dropdown>
+    </div>
+  
+    <!-- Section Taux de réalisation -->
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-blue-700 font-semibold">TAUX DE RÉALISATION DES FORMATIONS</h2>
+        <i class="pi pi-chevron-{{ isExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+           (click)="toggleExpand()"></i>
+      </div>
+  
+      <!-- Formation Title -->
+      <div class="space-y-8" [ngClass]="{'hidden': !isExpanded}">
+        <div *ngFor="let formation of formations; let last = last" class="formation-section">
+          <h3 class="text-blue-600 mb-4">{{ formation.title }}</h3>
+  
+          <!-- Grille des régions -->
+          <div class="grid grid-cols-2 gap-6">
+            <div *ngFor="let region of formation.regions" class="bg-white rounded-lg border border-gray-200">
+              <div class="bg-[#4070B8] text-white p-3 rounded-t-lg flex justify-between items-center">
+                <span class="font-semibold">{{ region.name }}</span>
+                <span>{{ region.total }}</span>
+                <span class="text-white">{{ region.establishments[0].percentage }}</span>
+              </div>
+              <div class="p-4">
+                <div>
+                  <div class="bg-gray-100 grid grid-cols-4 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                    <div>Établissement</div>
+                    <div class="text-center">Nb classes</div>
+                    <div class="text-center">Progression</div>
+                    <div class="text-right">Pourcentage</div>
+                  </div>
+                  <div class="divide-y divide-gray-200">
+                    <div *ngFor="let establishment of region.establishments" 
+                         class="py-2 grid grid-cols-4 text-sm text-gray-700">
+                      <div class="whitespace-nowrap">{{ establishment.name }}</div>
+                      <div class="text-center">{{ establishment.classes }}</div>
+                      <div class="text-center">
+                        <div class="bg-gray-200 rounded-full h-1.5 w-24">
+                          <div [class]="getProgressColor(establishment.progression) + ' h-1.5 rounded-full'"
+                               [style.width]="establishment.progression + '%'"></div>
+                        </div>
+                      </div>
+                      <div class="text-right">{{ establishment.percentage }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Séparateur sauf pour le dernier élément -->
+          <div *ngIf="!last" class="border-b border-gray-200 my-8"></div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Section Kits Restants -->
+    <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-blue-700 font-semibold">NB DE KITS RESTANTS</h2>
+        <i class="pi pi-chevron-{{ isKitsExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+           (click)="toggleKitsExpand()"></i>
+      </div>
+  
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" [ngClass]="{'hidden': !isKitsExpanded}">
+        <div *ngFor="let region of regionKits" 
+             [ngClass]="{'bg-red-500': region.isLow, 'bg-[#4070B8]': !region.isLow}"
+             class="rounded-lg border border-gray-200">
+          <div class="p-3 text-white flex justify-between items-center">
+            <span class="font-semibold">{{region.name}}</span>
+            <div class="flex items-center">
+              <span class="font-semibold">{{region.total}}</span>
+              <i *ngIf="region.isLow" class="pi pi-exclamation-triangle ml-2"></i>
+            </div>
+          </div>
+  
+          <div class="bg-white p-4 rounded-b-lg">
+            <div>
+              <div class="bg-gray-100 grid grid-cols-2 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                <div>Type de kits</div>
+                <div class="text-right">Nb restant</div>
+              </div>
+              <div class="divide-y divide-gray-200">
+                <div *ngFor="let kit of region.kits" class="py-2 grid grid-cols-2 text-sm text-gray-700">
+                  <div class="whitespace-nowrap">{{kit.name}}</div>
+                  <div class="text-right">{{kit.remaining}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Section Élections -->
+    <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-blue-700 font-semibold">TAUX DE RÉALISATION DES ÉLECTIONS</h2>
+        <i class="pi pi-chevron-{{ isElectionsExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+           (click)="toggleElectionsExpand()"></i>
+      </div>
+  
+      <div class="space-y-4" [ngClass]="{'hidden': !isElectionsExpanded}">
+        <!-- Première ligne -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div *ngFor="let region of elections.slice(0, 3)" 
+               class="rounded-lg border border-gray-200">
+            <div class="bg-[#4070B8] text-white p-3 flex justify-between items-center rounded-t-lg mb-1">
+              <span class="font-semibold">{{region.name}}</span>
+              <div class="flex items-center gap-4">
+                <span>{{region.total}}</span>
+                <div class="bg-white/30 rounded-full h-1.5 w-24 relative">
+                  <div [class]="getProgressColor(region.progression) + ' h-1.5 rounded-full absolute top-0 left-0'"
+                       [style.width]="region.progression + '%'"></div>
+                </div>
+                <span>{{region.percentage}}</span>
+              </div>
+            </div>
+  
+            <div class="bg-white p-6 rounded-b-lg">
+              <div>
+                <div class="bg-gray-100 grid grid-cols-2 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                  <div>Établissement</div>
+                  <div class="text-right">Nb d'inscrits</div>
+                </div>
+                <div class="divide-y divide-gray-200">
+                  <div *ngFor="let establishment of region.establishments" 
+                       class="py-2 grid grid-cols-2 text-sm text-gray-700">
+                    <div class="whitespace-nowrap">{{establishment.name}}</div>
+                    <div class="text-right">{{establishment.completed}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Deuxième ligne (Savalou) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div *ngFor="let region of elections.slice(3, 4)" 
+               class="rounded-lg border border-gray-200">
+            <div class="bg-[#4070B8] text-white p-3 flex justify-between items-center rounded-t-lg mb-1">
+              <span class="font-semibold">{{region.name}}</span>
+              <div class="flex items-center gap-4">
+                <span>{{region.total}}</span>
+                <div class="bg-white/30 rounded-full h-1.5 w-24 relative">
+                  <div [class]="getProgressColor(region.progression) + ' h-1.5 rounded-full absolute top-0 left-0'"
+                       [style.width]="region.progression + '%'"></div>
+                </div>
+                <span>{{region.percentage}}</span>
+              </div>
+            </div>
+  
+            <div class="bg-white p-6 rounded-b-lg">
+              <div>
+                <div class="bg-gray-100 grid grid-cols-2 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                  <div>Établissement</div>
+                  <div class="text-right">Nb d'inscrits</div>
+                </div>
+                <div class="divide-y divide-gray-200">
+                  <div *ngFor="let establishment of region.establishments" 
+                       class="py-2 grid grid-cols-2 text-sm text-gray-700">
+                    <div class="whitespace-nowrap">{{establishment.name}}</div>
+                    <div class="text-right">{{establishment.completed}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Section Activités Récréatives -->
+  <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-blue-00 text-[#4070B8] font-semibold whitespace-nowrap">NB D'INSCRITS POUR CHAQUE ACTIVITÉ RÉCRÉATIVE (SLAM, ART PLASTIQUE, THÉÂTRE, CHAMPIONNE GHM)</h2>
+      <i class="pi pi-chevron-{{ isActivitiesExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+         (click)="toggleActivitiesExpand()"></i>
+    </div>
+
+    <div class="space-y-8" [ngClass]="{'hidden': !isActivitiesExpanded}">
+      <div *ngFor="let activity of activities">
+        <h3 class="text-lg text-[#4070B8] font-semibold mb-4">{{activity.name}}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div *ngFor="let region of activity.regions" 
+               class="rounded-xl border border-gray-200">
+            <div class="bg-[#4070B8] text-white p-3 flex justify-between items-center rounded-xl mb-1">
+              <span class="font-semibold">{{region.name}}</span>
+              <span>{{region.total}}</span>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl">
+              <div>
+                <div class="bg-gray-100 grid grid-cols-2 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                  <div>Établissement</div>
+                  <div class="text-right">Nb inscrits</div>
+                </div>
+                <div class="divide-y divide-gray-200">
+                  <div *ngFor="let establishment of region.establishments" class="py-2 grid grid-cols-2 text-sm text-gray-700">
+                    <div class="whitespace-nowrap">{{establishment.name}}</div>
+                    <div class="text-right">{{establishment.inscriptions}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+        <!-- Section Questions aux PR -->
+        <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-blue-700 font-semibold">QUESTIONS AUX PR</h2>
+            <i class="pi pi-chevron-{{ isQuestionsExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+               (click)="toggleQuestionsExpand()"></i>
+          </div>
+    
+          <div class="grid grid-cols-4 gap-6" [ngClass]="{'hidden': !isQuestionsExpanded}">
+            <div *ngFor="let region of ['BANTÈ', 'COMÈ', 'HOUÉYOGBÉ', 'SAVALOU']" class="bg-[#4070B8] rounded-lg border border-gray-200">
+              <div class="text-white font-semibold p-4">{{region}}</div>
+              <div class="bg-white p-4">
+                <div>
+                  <div class="bg-gray-100 flex items-center justify-between text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                    <span>Établissement</span>
+                    <span>Nb</span>
+                    <span>%</span>
+                  </div>
+                  <div class="space-y-2">
+                    <div *ngFor="let item of [
+                      {name: 'CEG 1 BANTÈ', nb: '21', percent: '90%'},
+                      {name: 'CEG AKPASSI', nb: '13', percent: '90%'},
+                      {name: 'CEG ANOUDE', nb: '11', percent: '90%'}
+                    ]" class="flex items-center justify-between text-sm text-gray-700">
+                      <span class="whitespace-nowrap">{{item.name}}</span>
+                      <span>{{item.nb}}</span>
+                      <span>{{item.percent}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Élaboration de Plans d'Actions -->
+        <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-blue-700 font-semibold">ÉLABORATION DE PLANS D'ACTIONS</h2>
+            <i class="pi pi-chevron-{{ isPlansExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+               (click)="togglePlansExpand()"></i>
+          </div>
+    
+          <div class="grid grid-cols-4 gap-6" [ngClass]="{'hidden': !isPlansExpanded}">
+            <div class="bg-[#4070B8] rounded-lg border border-gray-200">
+              <div class="text-white p-4 flex justify-between items-center">
+                <span class="font-semibold">BANTÈ</span>
+                <span class="text-sm">3/3</span>
+                <span class="text-sm">100%</span>
+              </div>
+              <div class="bg-white p-4">
+                <div>
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG 1 BANTÈ</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG AKPASSI</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG ANOUDE</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-[#4070B8] rounded-lg border border-gray-200">
+              <div class="text-white p-4 flex justify-between items-center">
+                <span class="font-semibold">COMÈ</span>
+                <span class="text-sm">1/3 </span>
+                <span class="text-sm">33.33%</span>
+              </div>
+              <div class="bg-white p-4">
+                <div>
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG 2 COMÈ</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG 4 COMÈ</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">En cours</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG AKODEHA</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">En cours</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-[#4070B8] rounded-lg border border-gray-200">
+              <div class="text-white p-4 flex justify-between items-center">
+                <span class="font-semibold">HOUÉYOGBÉ</span>
+                <span class="text-sm">3/3 </span>
+                <span class="text-sm">100%</span>
+              </div>
+              <div class="bg-white p-4">
+                <div>
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG HOUÉYOGBÉ</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">En cours</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG 1 DOUTOU</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">En cours</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG AHOULOUMÈ</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">En cours</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-[#4070B8] rounded-lg border border-gray-200">
+              <div class="text-white p-4 flex justify-between items-center">
+                <span class="font-semibold">HOUÉYOGBÉ</span>
+                <span class="text-sm">3/3</span>
+                <span class="text-sm">100%</span>
+              </div>
+              <div class="bg-white p-4">
+                <div>
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG HOUÉYOGBÉ</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG 1 DOUTOU</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 whitespace-nowrap">CEG AHOULOUMÈ</span>
+                      <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Élaboré</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Taux de Formations -->
+<div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-blue-700 font-semibold">TAUX DE FORMATIONS</h2>
+    <i class="pi pi-chevron-{{ isTrainingRatesExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+       (click)="toggleTrainingRatesExpand()"></i>
+  </div>
+
+  <div [ngClass]="{'hidden': !isTrainingRatesExpanded}">
+    <!-- Première ligne -->
+    <div class="grid grid-cols-3 gap-6 mb-6">
+      <div *ngFor="let rate of trainingRates.slice(0, 3)" class="bg-[#4070B8] rounded-lg border border-gray-200">
+        <div class="text-white p-3 flex justify-between items-center">
+          <span class="font-semibold">{{rate.name}}</span>
+          <div class="flex items-center gap-2 mb-2">
+            <span>{{rate.total}}</span>
+            <div class="h-1.5 w-24 bg-gray-200 rounded-full">
+              <div class="h-1.5 rounded-full" 
+                   [ngClass]="rate.name === 'HOUÉYOGBÉ' ? 'bg-red-500' : 'bg-green-500'"
+                   [style.width]="rate.percentage"></div>
+            </div>
+            <span>{{rate.percentage}}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-4">
+          <div>
+            <div class="bg-gray-100 grid grid-cols-3 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+              <span>Animatrice</span>
+              <span class="text-center">Nb</span>
+              <span class="text-right">%</span>
+            </div>
+            <div class="space-y-2">
+              <div *ngFor="let animator of rate.animators" class="grid grid-cols-3 text-sm text-gray-700">
+                <span class="whitespace-nowrap">{{animator.name}}</span>
+                <span class="text-center">{{animator.count}}</span>
+                <span class="text-right">{{animator.percentage}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deuxième ligne (Savalou) -->
+    <div class="grid grid-cols-3 gap-6 mt-8">
+      <div *ngFor="let rate of trainingRates.slice(3, 4)" class="bg-[#4070B8] rounded-lg border border-gray-200">
+        <div class="text-white p-3 flex justify-between items-center">
+          <span class="font-semibold">{{rate.name}}</span>
+          <div class="flex items-center gap-2">
+            <span>{{rate.total}}</span>
+            <div class="h-1.5 w-24 bg-gray-200 rounded-full">
+              <div class="h-1.5 rounded-full bg-green-500"
+                   [style.width]="rate.percentage"></div>
+            </div>
+            <span>{{rate.percentage}}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-4">
+          <div>
+            <div class="bg-gray-100 grid grid-cols-3 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+              <span>Animatrice</span>
+              <span class="text-center">Nb</span>
+              <span class="text-right">%</span>
+            </div>
+            <div class="space-y-2">
+              <div *ngFor="let animator of rate.animators" class="grid grid-cols-3 text-sm text-gray-700">
+                <span class="whitespace-nowrap">{{animator.name}}</span>
+                <span class="text-center">{{animator.count}}</span>
+                <span class="text-right">{{animator.percentage}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Section Taux de Supervisions -->
+    <div class="bg-white rounded-lg p-6 mt-6 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-blue-700 font-semibold">TAUX DE SUPERVISIONS</h2>
+        <i class="pi pi-chevron-{{ isSupervisionRatesExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+          (click)="toggleSupervisionRatesExpand()"></i>
+      </div>
+
+      <div [ngClass]="{'hidden': !isSupervisionRatesExpanded}">
+        <!-- Première ligne -->
+        <div class="grid grid-cols-3 gap-6 mb-15">
+          <div *ngFor="let rate of supervisionRates.slice(0, 3)" class="bg-[#4070B8] rounded-lg shadow-md border border-gray-200">
+            <div class="text-white font-semibold p-3">{{rate.name}}</div>
+            <div class="bg-white p-4">
+              <div>
+                <div class="bg-gray-100 grid grid-cols-3 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                  <span>Animatrice</span>
+                  <span class="text-center pl-4">Nb form.</span>
+                  <span class="text-right">Nb sup.</span>
+                </div>
+                <div class="space-y-2">
+                  <div *ngFor="let animator of rate.animators" class="grid grid-cols-3 text-sm text-gray-700 whitespace-nowrap">
+                    <span class="whitespace-nowrap">{{animator.name}}</span>
+                    <span class="text-center pl-4">{{animator.formationCount}}</span>
+                    <span class="text-right">{{animator.supervisionCount}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deuxième ligne -->
+        <div class="grid grid-cols-3 gap-6 ">
+          <div *ngFor="let rate of supervisionRates.slice(3, 4)" class="bg-[#4070B8] rounded-lg shadow-md border border-gray-200">
+            <div class="text-white font-semibold p-3">{{rate.name}}</div>
+            <div class="bg-white p-4">
+              <div>
+                <div class="bg-gray-100 grid grid-cols-3 text-sm font-semibold text-gray-600 p-2 mb-2 border-b border-gray-200">
+                  <span>Animatrice</span>
+                  <span class="text-center pl-4">Nb form.</span>
+                  <span class="text-right">Nb sup.</span>
+                </div>
+                <div class="space-y-2">
+                  <div *ngFor="let animator of rate.animators" class="grid grid-cols-3 text-sm text-gray-700 whitespace-nowrap">
+                    <span class="whitespace-nowrap">{{animator.name}}</span>
+                    <span class="text-center pl-4">{{animator.formationCount}}</span>
+                    <span class="text-right">{{animator.supervisionCount}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Section Supervision de l'Équipe Projet -->
+    <div class="bg-white rounded-lg mt-6 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center p-6">
+        <h2 class="text-blue-700 font-semibold">SUPERVISION DE L'ÉQUIPE PROJET</h2>
+        <i class="pi pi-chevron-{{ isTeamSupervisionExpanded ? 'up' : 'down' }} text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+          (click)="toggleTeamSupervisionExpand()"></i>
+      </div>
+
+      <div [ngClass]="{'hidden': !isTeamSupervisionExpanded}">
+        <div class="bg-[#4070B8] text-white">
+          <div class="grid grid-cols-9">
+            <div class="p-4"></div>
+            <div class="p-4 text-center border-l border-white/30">Oct</div>
+            <div class="p-4 text-center border-l border-white/30">Nov</div>
+            <div class="p-4 text-center border-l border-white/30">Dec</div>
+            <div class="p-4 text-center border-l border-white/30">Jan</div>
+            <div class="p-4 text-center border-l border-white/30">Fev</div>
+            <div class="p-4 text-center border-l border-white/30">Mars</div>
+            <div class="p-4 text-center border-l border-white/30">Avr</div>
+            <div class="p-4 text-center border-l border-white/30">Mai</div>
+          </div>
+        </div>
+
+        <div>
+          <div *ngFor="let supervision of teamSupervisions" class="grid grid-cols-9 border-t border-gray-200">
+            <div class="p-4 text-left whitespace-nowrap">{{supervision.location}}</div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.oct === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.oct === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.nov === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.nov === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.dec === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.dec === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.jan === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.jan === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.fev === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.fev === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.mars === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.mars === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.avr === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.avr === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+            <div class="p-4 text-center border-l border-gray-200">
+              <span *ngIf="supervision.months.mai === 'V'" class="text-green-500 font-medium">V</span>
+              <span *ngIf="supervision.months.mai === 'X'" class="text-red-500 font-medium">X</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+

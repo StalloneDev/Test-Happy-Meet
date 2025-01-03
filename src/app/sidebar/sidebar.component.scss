@@ -1,0 +1,134 @@
+.sidebar {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  width: 16rem;
+  background: white;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+
+  &.collapsed {
+    width: 4rem;
+    
+    .logo-container {
+      padding: 0.5rem;
+      justify-content: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      
+      img {
+        display: none;
+      }
+      
+      .toggle-button {
+        margin: 0;
+      }
+    }
+    
+    .menu-label, .menu-toggle, .submenu {
+      display: none;
+    }
+    
+    .menu-icon {
+      margin: 0 !important;
+    }
+    
+    .menu-item {
+      justify-content: center;
+      padding: 1rem 0;
+      
+      .pi-chevron-right {
+        display: none;
+      }
+    }
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #6B7280;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #F9FAFB;
+    }
+
+    &.active {
+      background-color: #EFF6FF;
+      color: #4070B8;
+    }
+
+    i {
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+  }
+
+  .submenu-item {
+    &:hover {
+      background-color: #F3F4F6;
+    }
+  }
+}
+
+.logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  
+  img {
+    height: 40px;
+    width: auto;
+  }
+}
+
+.toggle-button {
+  cursor: pointer;
+  color: #4070B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 1rem;
+  width: 32px;
+  height: 32px;
+  background: rgba(64, 112, 184, 0.04);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(64, 112, 184, 0.08);
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.menu-group {
+  .menu-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+.menu-icon {
+  font-size: 1.25rem;
+  width: 1.5rem;
+  text-align: center;
+}
+
+:host ::ng-deep {
+  .pi {
+    font-size: 1.1rem;
+  }
+}
+
+.text-primary {
+  color: #4070B8;
+}

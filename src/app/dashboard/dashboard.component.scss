@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  padding: 2rem;
+
+  ::ng-deep {
+    .p-dropdown {
+      .p-dropdown-label {
+        padding: 0.75rem 1rem;
+        color: #374151;
+      }
+
+      .p-dropdown-trigger {
+        width: 3rem;
+        color: #6B7280;
+      }
+    }
+
+    .p-dropdown-panel {
+      .p-dropdown-items {
+        padding: 0.5rem 0;
+        
+        .p-dropdown-item {
+          padding: 0.75rem 1rem;
+          color: #374151;
+          
+          &:hover {
+            background-color: #F3F4F6;
+          }
+        }
+      }
+    }
+  }
+}
+
+.pi {
+  transition: transform 0.2s ease-in-out;
+}
+
+.pi-chevron-up {
+  transform: rotate(0deg);
+}
+
+.pi-chevron-down {
+  transform: rotate(180deg);
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+}
+
+.progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #E5E7EB;
+  overflow: hidden;
+
+  .progress {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+}
+
+// Styles pour le layout du dashboard
+.content-area {
+  position: fixed;
+  top: 64px; // Hauteur du header
+  right: 0;
+  bottom: 0;
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 64px); // Largeur quand la sidebar est réduite
+  overflow-y: auto;
+  background-color: #f8f9fa;
+
+  &.ml-64 {
+    width: calc(100% - 256px); // Largeur quand la sidebar est étendue
+  }
+}
+
+.dashboard-content {
+  padding: 1.5rem;
+}
+
+// Ajustement des grilles
+.grid {
+  margin: 0 !important;
+  width: 100% !important;
+}

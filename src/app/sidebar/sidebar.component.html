@@ -1,0 +1,86 @@
+<div class="sidebar bg-white h-screen fixed left-0 top-0" [ngClass]="{'collapsed': isSidebarCollapsed}">
+  <!-- En-tête du sidebar -->
+  <div class="logo-container">
+    <img src="assets/images/logos.png" alt="Happy Meet Logo">
+    <div class="toggle-button" (click)="toggleSidebar()">
+      <i class="pi" [ngClass]="{'pi-angle-double-right': isSidebarCollapsed, 'pi-angle-double-left': !isSidebarCollapsed}"></i>
+    </div>
+  </div>
+
+  <!-- Menu principal -->
+  <div class="menu-container">
+    <!-- Section Préparation -->
+    <div class="menu-group mb-4 bg-gray-100">
+      <div class="menu-item p-4 flex items-center justify-between cursor-pointer text-[#4070B8]" (click)="togglePreparation()">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-file menu-icon"></i>
+          <span class="menu-label">Préparation de l'édition</span>
+        </div>
+        <i class="pi menu-toggle" [ngClass]="{'pi-chevron-down': !isPreparationCollapsed, 'pi-chevron-right': isPreparationCollapsed}"></i>
+      </div>
+      <div class="submenu" [ngClass]="{'hidden': isPreparationCollapsed}">
+        <div class="submenu-item p-4 pl-8 text-gray-600 cursor-pointer flex items-center justify-between hover:bg-gray-200">
+          <span>Identification des établissements</span>
+          <i class="pi pi-chevron-right text-gray-400"></i>
+        </div>
+        <div class="submenu-item p-4 pl-8 text-gray-600 cursor-pointer flex items-center justify-between hover:bg-gray-200">
+          <span>Composition des équipes</span>
+          <i class="pi pi-chevron-right text-gray-400"></i>
+        </div>
+        <div class="submenu-item p-4 pl-8 text-gray-600 cursor-pointer flex items-center justify-between hover:bg-gray-200">
+          <span>Recrutement équipe GHM</span>
+          <i class="pi pi-chevron-right text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau de bord -->
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer text-[#4070B8] bg-gray-100">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-home menu-icon"></i>
+        <span class="menu-label">Tableau de bord</span>
+      </div>
+    </div>
+
+    <!-- Autres menus -->
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-folder menu-icon text-gray-400"></i>
+        <span class="menu-label text-gray-700">Gestion de projet</span>
+      </div>
+      <i class="pi pi-chevron-right text-gray-400"></i>
+    </div>
+
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-chart-line menu-icon text-gray-400"></i>
+        <span class="menu-label text-gray-700">Suivi-évaluation</span>
+      </div>
+      <i class="pi pi-chevron-right text-gray-400"></i>
+    </div>
+
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-users menu-icon text-gray-400"></i>
+        <span class="menu-label text-gray-700">Gestion des ressources</span>
+      </div>
+      <i class="pi pi-chevron-right text-gray-400"></i>
+    </div>
+
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-book menu-icon text-gray-400"></i>
+        <span class="menu-label text-gray-700">Bibliothèque</span>
+      </div>
+      <i class="pi pi-chevron-right text-gray-400"></i>
+    </div>
+
+    <div class="menu-item p-4 flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-cog menu-icon text-gray-400"></i>
+        <span class="menu-label text-gray-700">Paramétrages</span>
+      </div>
+      <i class="pi pi-chevron-right text-gray-400"></i>
+    </div>
+  </div>
+</div>
